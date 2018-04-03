@@ -45,6 +45,20 @@ return [
         ],
     ],
 
+    'imports'            => [
+
+        /*
+        |--------------------------------------------------------------------------
+        | Chunk size
+        |--------------------------------------------------------------------------
+        |
+        | When using WithChunks, the data is automatically chunked.
+        | Here you can specify how big the chunk should be.
+        |
+        */
+        'chunk_size' => 1000,
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Extension detector
