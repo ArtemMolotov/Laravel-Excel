@@ -6,6 +6,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Filesystem\FilesystemManager;
 use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Contracts\Routing\ResponseFactory;
+use PhpOffice\PhpSpreadsheet\Reader\IReadFilter;
 
 class Excel implements Exporter, Importer
 {
@@ -114,25 +115,26 @@ class Excel implements Exporter, Importer
     }
 
     /**
-     * @param object      $import
-     * @param string      $filePath
-     * @param string|null $disk
-     * @param string|null $readerType
-     *
-     * @return bool
+     * {@inheritdoc}
+     * @param IReadFilter|null $filter
      */
-    public function import($import, string $filePath, string $disk = null, string $readerType = null)
+    public function import($import, string $filePath, string $disk = null, string $readerType = null, IReadFilter $filter = null)
     {
-        return $this->reader->read($import, $filePath, $disk, $readerType);
+        if (null === $readerType) {
+            $readerType = $this->findTypeByExtension(basename($filePath));
+        }
+
+        return $this->reader->import(
+            $import,
+            $filePath,
+            $disk,
+            $readerType,
+            $filter
+        );
     }
 
     /**
-     * @param object      $import
-     * @param string      $filePath
-     * @param string|null $disk
-     * @param string      $readerType
-     *
-     * @return PendingDispatch
+     * {@inheritdoc}
      */
     public function queuedImport($import, string $filePath, string $disk = null, string $readerType = null)
     {
