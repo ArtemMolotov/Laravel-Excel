@@ -2,6 +2,8 @@
 
 namespace Maatwebsite\Excel;
 
+use Maatwebsite\Excel\Concerns\WithImportHeadings;
+use Maatwebsite\Excel\Concerns\WithImportTitle;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Events\AfterSheet;
@@ -13,6 +15,7 @@ use Maatwebsite\Excel\Concerns\WithEvents;
 use Illuminate\Contracts\Support\Arrayable;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
@@ -72,6 +75,21 @@ class Sheet
         if (!$sheetExport instanceof FromView && $sheetExport instanceof WithHeadings) {
             $this->append([$sheetExport->headings()]);
         }
+
+        if ($sheetExport instanceof ToCollection) {
+            if ($sheetExport instanceof WithImportHeadings){
+                $highestColumn = $this->worksheet->getHighestColumn('A');
+                $headings = $this->worksheet
+                    ->rangeToArray('A1:A' . $highestColumn);
+                $sheetExport->setHeadings($headings);
+                $this->worksheet->removeRow(1);
+            }
+
+            if ($sheetExport instanceof WithImportTitle){
+                $title = $this->worksheet->getTitle();
+                $sheetExport->setTitle($title);
+            }
+        }
     }
 
     /**
@@ -97,6 +115,22 @@ class Sheet
         }
 
         $this->close($sheetExport);
+    }
+
+    /**
+     * @param object $sheetImport
+     *
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     */
+    public function import($sheetImport)
+    {
+        $this->open($sheetImport);
+
+        if ($sheetImport instanceof ToCollection) {
+            $this->toCollection($sheetImport, $this->worksheet);
+        }
+
+        $this->close($sheetImport);
     }
 
     /**
@@ -163,6 +197,16 @@ class Sheet
             ->each(function ($row) use ($sheetExport, $worksheet) {
                 $this->appendRow($row, $sheetExport);
             });
+    }
+
+    /**
+     * @param ToCollection $sheetImport
+     * @param Worksheet      $worksheet
+     */
+    public function toCollection(ToCollection $sheetImport, Worksheet $worksheet)
+    {
+        $collection = $worksheet->toArray();
+        $sheetImport->collection($collection, $worksheet);
     }
 
     /**
