@@ -116,7 +116,6 @@ class Excel implements Exporter, Importer
 
     /**
      * {@inheritdoc}
-     * @param IReadFilter|null $filter
      */
     public function import($import, string $filePath, string $disk = null, string $readerType = null, IReadFilter $filter = null)
     {
