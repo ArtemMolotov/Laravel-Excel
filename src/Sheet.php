@@ -78,9 +78,9 @@ class Sheet
 
         if ($sheetExport instanceof ToCollection) {
             if ($sheetExport instanceof WithImportHeadings){
-                $highestColumn = $this->worksheet->getHighestColumn('A');
+                $highestColumn = $this->worksheet->getHighestColumn(1);
                 $headings = $this->worksheet
-                    ->rangeToArray('A1:A' . $highestColumn);
+                    ->rangeToArray('A1:' . $highestColumn . '1', '');
                 $sheetExport->setHeadings($headings);
                 $this->worksheet->removeRow(1);
             }
