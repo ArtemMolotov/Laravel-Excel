@@ -81,7 +81,7 @@ class Sheet
                 $highestColumn = $this->worksheet->getHighestColumn(1);
                 $headings = $this->worksheet
                     ->rangeToArray('A1:' . $highestColumn . '1', '');
-                $sheetExport->setHeadings($headings);
+                $sheetExport->setHeadings($headings[0]);
                 $this->worksheet->removeRow(1);
             }
 
