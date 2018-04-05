@@ -78,11 +78,10 @@ class Sheet
 
         if ($sheetExport instanceof ToCollection) {
             if ($sheetExport instanceof WithImportHeadings){
-                $highestColumn = $this->worksheet->getHighestColumn(1);
+                $highestColumn = $this->worksheet->getHighestColumn();
                 $headings = $this->worksheet
                     ->rangeToArray('A1:' . $highestColumn . '1', '');
                 $sheetExport->setHeadings($headings[0]);
-                $this->worksheet->removeRow(1);
             }
 
             if ($sheetExport instanceof WithImportTitle){
@@ -205,7 +204,15 @@ class Sheet
      */
     public function toCollection(ToCollection $sheetImport, Worksheet $worksheet)
     {
-        $collection = $worksheet->toArray();
+        $delegate = $this->getDelegate();
+
+        // Garbage collect...
+        $delegate->garbageCollect();
+        //    Identify the range that we need to extract from the worksheet
+        $maxCol = $delegate->getHighestColumn();
+        $maxRow = $delegate->getHighestRow();
+
+        $collection = $delegate->rangeToArray('A2:' . $maxCol . $maxRow);
         $sheetImport->collection($collection, $worksheet);
     }
 
