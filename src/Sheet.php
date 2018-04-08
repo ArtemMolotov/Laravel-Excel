@@ -212,7 +212,9 @@ class Sheet
         $maxCol = $delegate->getHighestColumn();
         $maxRow = $delegate->getHighestRow();
 
-        $collection = $delegate->rangeToArray('A2:' . $maxCol . $maxRow);
+        $minRow = ($sheetImport instanceof WithImportHeadings) ? 2 : 1;
+
+        $collection = $delegate->rangeToArray('A'.$minRow.':' . $maxCol.$maxRow);
         $sheetImport->collection($collection, $worksheet);
     }
 
